@@ -14,7 +14,3 @@ variable "credentials" {
   type        = string
   sensitive   = true
 }
-
-locals {
-  default_expiration_ms = 90 * 24 * 60 * 60 * 1000  # 90 days in ms
-}

@@ -20,10 +20,20 @@ Terraform (Infrastructure-as-Code) solves this by defining infrastructure in dec
 
 ```
 .
-├── main.tf                    # Provider config + resource definitions
-├── variables.tf               # Variable declarations + locals
+├── main.tf                    # Provider config + module calls + state migration
+├── variables.tf               # Variable declarations
+├── outputs.tf                 # Output values (bucket name, dataset ID, etc.)
 ├── terraform.tfvars           # Actual variable values (gitignored)
 ├── terraform.tfvars.example   # Template for terraform.tfvars
+├── modules/
+│   ├── gcs/
+│   │   ├── main.tf            # GCS bucket + random ID for unique naming
+│   │   ├── variables.tf       # Module inputs (bucket_name_prefix, location, etc.)
+│   │   └── outputs.tf         # Module outputs (bucket_name, bucket_url, etc.)
+│   └── bigquery/
+│       ├── main.tf            # BigQuery dataset
+│       ├── variables.tf       # Module inputs (dataset_id, location, labels, etc.)
+│       └── outputs.tf         # Module outputs (dataset_id, project, etc.)
 ├── credentials/               # Service account keys (gitignored)
 └── .gitignore
 ```
@@ -79,8 +89,10 @@ Removes all resources defined in the config.
 
 ## Key Concepts Learned
 
-- **4 Building Blocks**: `terraform {}`, `provider {}`, `resource {}`, `variable {}`/`locals {}`
+- **5 Building Blocks**: `terraform {}`, `provider {}`, `resource {}`, `variable {}`/`locals {}`, `module {}`
 - **4 Core Commands**: `init`, `plan`, `apply`, `destroy`
+- **Modules**: Reusable, self-contained units with their own `variables.tf`, `main.tf`, and `outputs.tf`
+- **State Migration**: Using `moved` blocks to refactor resource addresses without destroying infrastructure
 - **Best Practices**: Variables for reusable values, `sensitive = true` for credentials, `locals` for computed constants, `.gitignore` for state/secrets
 
 ## Result
@@ -99,14 +111,18 @@ Meanwhile, BQ appears like this:
 
 - [ ] Use `terraform.workspace` to manage multiple environments (dev/prod)
 - [ ] Move state to a remote backend (GCS bucket) for team collaboration
-- [ ] Add `output.tf` to export resource attributes (bucket name, dataset ID)
-- [ ] Modularize resources into reusable Terraform modules
+- [x] Add `output.tf` to export resource attributes (bucket name, dataset ID)
+- [x] Modularize resources into reusable Terraform modules
 - [ ] Set up CI/CD pipeline to run `terraform plan` on PR and `apply` on merge
 
 ## Reference
 
 - [Understanding Terraform Fundamentals by Zainabmosunmola](https://zainabmosunmola.medium.com/understanding-terraforms-fundamentals-a0eac0d8c9ed)
-[GCS Terraform](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_bucket)
-[Bigquery Dataset Terraform](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/bigquery_dataset)
-[Bigquery Table Terraform](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/bigquery_table)
+- [GCS Terraform](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_bucket)
+- [Bigquery Dataset Terraform](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/bigquery_dataset)
+- [Bigquery Table Terraform](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/bigquery_table)
+- [Standard Module Structure - HashiCorp](https://developer.hashicorp.com/terraform/language/modules/develop/structure) — Each module should have `main.tf`, `variables.tf`, `outputs.tf`
+- [Creating Modules - HashiCorp](https://developer.hashicorp.com/terraform/language/modules/develop) — Module design guidelines and best practices
+- [Module Creation Recommended Pattern - HashiCorp](https://developer.hashicorp.com/terraform/tutorials/modules/pattern-module-creation) — Step-by-step tutorial on module creation
+- [Google Cloud Terraform Best Practices](https://docs.cloud.google.com/docs/terraform/best-practices/general-style-structure) — GCP-specific module structure recommendations
 
