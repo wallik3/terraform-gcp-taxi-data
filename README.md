@@ -91,7 +91,8 @@ After `terraform apply`, GCS appears like this:
 ![](assets/images/gcs-once-apply-2.png)
 ![](assets/images/gcs-once-apply-3.png)
 
-Meanwhile, BQ appears like this
+Meanwhile, BQ appears like this:
+
 ![](assets/images/bq-once-apply.png)
 
 ## What's Next
