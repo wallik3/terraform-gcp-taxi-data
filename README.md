@@ -80,18 +80,47 @@ terraform destroy
 
 Removes all resources defined in the config.
 
+## Multi-environment (Workspaces)
+
+This project uses `terraform.workspace` to manage dev and prod environments with isolated state.
+
+```bash
+# Create and switch to dev workspace
+terraform workspace new dev
+terraform plan    # → taxi-data-lake-dev-<random>, taxi_dataset_dev
+terraform apply
+
+# Create and switch to prod workspace
+terraform workspace new prod
+terraform plan    # → taxi-data-lake-prod-<random>, taxi_dataset_prod
+terraform apply
+
+# Switch between workspaces
+terraform workspace select dev
+```
+
+| Setting | dev | prod |
+|---|---|---|
+| GCP Project | `terraform-taxi-data-dev` | `terraform-taxi-data-prod` |
+| Bucket name prefix | `taxi-data-lake-dev` | `taxi-data-lake-prod` |
+| Dataset ID | `taxi_dataset_dev` | `taxi_dataset_prod` |
+| Expiration days | 30 | 365 |
+| `force_destroy` | `true` | `false` |
+| `delete_contents_on_destroy` | `true` | `false` |
+
 ## What Gets Provisioned
 
 | Resource | Name | Description |
 |---|---|---|
-| GCS Bucket | `taxi-data-lake-<random>` | Data lake with lifecycle rules (STANDARD -> NEARLINE after 10d, delete after 30d) |
-| BigQuery Dataset | `taxi_dataset` | Dataset with 90-day table/partition expiration |
+| GCS Bucket | `taxi-data-lake-{dev\|prod}-<random>` | Data lake with lifecycle rules (STANDARD -> NEARLINE after 10d, delete after 30d) |
+| BigQuery Dataset | `taxi_dataset_{dev\|prod}` | Dataset with environment-specific table/partition expiration |
 
 ## Key Concepts Learned
 
 - **5 Building Blocks**: `terraform {}`, `provider {}`, `resource {}`, `variable {}`/`locals {}`, `module {}`
 - **4 Core Commands**: `init`, `plan`, `apply`, `destroy`
 - **Modules**: Reusable, self-contained units with their own `variables.tf`, `main.tf`, and `outputs.tf`
+- **Workspaces**: Using `terraform.workspace` to manage multiple environments (dev/prod) with isolated state
 - **State Migration**: Using `moved` blocks to refactor resource addresses without destroying infrastructure
 - **Best Practices**: Variables for reusable values, `sensitive = true` for credentials, `locals` for computed constants, `.gitignore` for state/secrets
 
@@ -109,7 +138,7 @@ Meanwhile, BQ appears like this:
 
 ## What's Next
 
-- [ ] Use `terraform.workspace` to manage multiple environments (dev/prod)
+- [x] Use `terraform.workspace` to manage multiple environments (dev/prod)
 - [ ] Move state to a remote backend (GCS bucket) for team collaboration
 - [x] Add `output.tf` to export resource attributes (bucket name, dataset ID)
 - [x] Modularize resources into reusable Terraform modules

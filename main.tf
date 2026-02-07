@@ -12,7 +12,7 @@ terraform {
 }
 
 provider "google" {
-  project     = var.project
+  project     = local.env.project
   region      = "us-central1"
   credentials = var.credentials
 }
@@ -21,20 +21,22 @@ module "gcs" {
   source = "./modules/gcs"
 
   # !Pass as a variable for modules/gcs/main.tf
-  bucket_name_prefix = "taxi-data-lake"
+  bucket_name_prefix = local.env.bucket_name_prefix
   location           = var.location
+  force_destroy      = local.env.force_destroy
 }
 
 module "bigquery" {
   source = "./modules/bigquery"
 
-  dataset_id              = "taxi_dataset"
-  location                = var.location
-  description             = "Dataset for NYC taxi trip data"
-  default_expiration_days = 90
+  dataset_id                 = local.env.dataset_id
+  location                   = var.location
+  description                = "Dataset for NYC taxi trip data"
+  default_expiration_days    = local.env.default_expiration_days
+  delete_contents_on_destroy = local.env.delete_contents_on_destroy
 
   labels = {
-    environment = "dev"
+    environment = terraform.workspace
     project     = "taxi-data"
   }
 }
