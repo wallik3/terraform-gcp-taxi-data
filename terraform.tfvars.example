@@ -1,0 +1,2 @@
+project     = "your-gcp-project-id"
+credentials = "./credentials/your-service-account-key.json"

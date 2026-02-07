@@ -1,0 +1,20 @@
+variable "project" {
+  description = "GCP project ID"
+  type        = string
+}
+
+variable "location" {
+  description = "Location for GCS buckets and BigQuery datasets"
+  type        = string
+  default     = "asia-southeast3"
+}
+
+variable "credentials" {
+  description = "Path to GCP service account key file"
+  type        = string
+  sensitive   = true
+}
+
+locals {
+  default_expiration_ms = 90 * 24 * 60 * 60 * 1000  # 90 days in ms
+}
